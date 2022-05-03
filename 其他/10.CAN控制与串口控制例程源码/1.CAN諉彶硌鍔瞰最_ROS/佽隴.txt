@@ -1,0 +1,6 @@
+该例程适配的单片机型号是STM32F103C8T6或者同系列的芯片
+
+接线：
+单片机      VP230      VP230     CAN设备
+PA11        RXD        CAN-H    CAN-H
+PA12        TXD        CAN-L    CAN-L

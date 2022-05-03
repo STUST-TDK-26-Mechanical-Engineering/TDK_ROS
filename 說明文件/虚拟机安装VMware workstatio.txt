@@ -1,0 +1,5 @@
+虚拟机安装VMware workstation 
+安装虚拟机之后，下载以下的镜像直接打开并使用VMware打开，即可配置好带ubuntu和ROS系统的虚拟机。
+
+虚拟机镜像
+链接: https://pan.baidu.com/s/1ttP9JDBNlKqwBTrFITFxiw 提取码: xamy
