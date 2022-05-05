@@ -1,5 +1,5 @@
 import serial
-
+import multiprocessing as mp
 def bytes2Hex(argv):        #十六进制显示 方法1
     try:
         result = ''  
