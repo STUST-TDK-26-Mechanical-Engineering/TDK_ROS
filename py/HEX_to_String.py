@@ -12,6 +12,7 @@ class control():
         self.portx = portx
         self.bps = bps
         self.packet = bytearray()
+        self.z_data=0
     def coding(self,X=0,Y=0,Z=0):
         packet = bytearray() #創一個空的陣列 類型是bytearray
         # X=0
@@ -74,6 +75,7 @@ class control():
     
     def res(self):
         if __name__ == "__main__":
+            a=0
            
             f = open('test.txt','w') 
             while self.ser.isOpen():
@@ -84,7 +86,11 @@ class control():
                     data=int(data,16)
                     if(data>32767):
                         data=data-(65536)
-                    print(data*(10**-3))
+                       
+                    data=data*(10**-3)
+                    if(abs(data)>0.01):
+                        self.z_data=self.z_data+data   
+                    print(self.z_data)
                     # content = self.bytes2Hex(line)
                     # f.write(content)
                     # print(content) 
@@ -94,11 +100,17 @@ class control():
         self.ser = serial.Serial(self.portx, self.bps) 
         t = threading.Thread(target = self.res)
         t.start()
-        # self.play(X=1000,s=3)
+        # self.play(X=3000,s=3)
         # self.play(X=-1000,s=3)
         # self.play(Y=1000,s=3)
         # self.play(Y=-1000,s=3)
-        # self.play(Z=1000,s=3)
+        while 1:
+
+            if(self.z_data<90):
+                self.play(Z=100,s=1)
+            elif(self.z_data>90):
+                self.play(Z=-100,s=1)
+                   
         # self.play(Z=-1000,s=3)
              
 control("COM3",115200).rum()
