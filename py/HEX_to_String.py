@@ -1,13 +1,17 @@
+from re import S
 import struct
 import time
+# from typing_extensions import Self
 # from tkinter import Y
 import serial
 from multiprocessing import Process
-class control:
+import threading
+
+class control():
     def __init__(self,portx,bps) -> None:
-        # self.portx = portx
-        # self.bps = bps
-        self.ser = serial.Serial(portx, bps) 
+        self.portx = portx
+        self.bps = bps
+        self.packet = bytearray()
     def coding(self,X=0,Y=0,Z=0):
         packet = bytearray() #創一個空的陣列 類型是bytearray
         # X=0
@@ -46,13 +50,14 @@ class control:
         packet.append(XOR_END)  
         packet.append(0x7D)  
         print(packet)
+        self.packet=packet
         return packet
-    def play(self,X=0,Y=0,Z=0,s=500):    
+    def play(self,X=0,Y=0,Z=0,s=1):    
         packet=self.coding(X,Y,Z)
-        self.ser.write(packet)  
         time.sleep(s)
         packet=self.coding(0,0,0)
-        self.ser.write(packet)
+    def online(self):
+        self.ser.write(self.packet)     
     def bytes2Hex(self,argv):        #十六进制显示 方法1
         try:
             result = ''  
@@ -68,21 +73,32 @@ class control:
         return result
     
     def res(self):
-        f = open('test.txt','w') 
-        while self.ser.isOpen():
-            num = self.ser.inWaiting()   #查询串口接收字节数据，非阻塞
-            if num:
-                line = self.ser.read(num)
-                content = self.bytes2Hex(line)
-                f.write(content)
-                print(content)    
-
-if __name__ == '__main__':
-    bot=control("COM3",115200)      
-    # bot.play(X=1000,s=5)  
-    # # bot.play(X=-500,s=10) 
-    # bot.play(Y=-1000,s=2) 
-    # bot.res() 
-    p=Process(target=bot.res)
-    p.start()
-    p.join()
+        if __name__ == "__main__":
+           
+            f = open('test.txt','w') 
+            while self.ser.isOpen():
+                num = self.ser.inWaiting()   #查询串口接收字节数据，非阻塞
+                if num:
+                    line = self.ser.read(num)  
+                    data=hex(line[18])[2:]+hex(line[19])[2:] 
+                    data=int(data,16)
+                    if(data>32767):
+                        data=data-(65536)
+                    print(data*(10**-3))
+                    # content = self.bytes2Hex(line)
+                    # f.write(content)
+                    # print(content) 
+                    self.online() 
+                    # time.sleep(1)  
+    def rum(self):
+        self.ser = serial.Serial(self.portx, self.bps) 
+        t = threading.Thread(target = self.res)
+        t.start()
+        # self.play(X=1000,s=3)
+        # self.play(X=-1000,s=3)
+        # self.play(Y=1000,s=3)
+        # self.play(Y=-1000,s=3)
+        # self.play(Z=1000,s=3)
+        # self.play(Z=-1000,s=3)
+             
+control("COM3",115200).rum()
