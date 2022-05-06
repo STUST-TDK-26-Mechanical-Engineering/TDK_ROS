@@ -1,4 +1,4 @@
-from re import S
+from re import S, X
 import struct
 import time
 # from typing_extensions import Self
@@ -6,13 +6,15 @@ import time
 import serial
 from multiprocessing import Process
 import threading
-
-class control():
+from JY61 import JY61
+from pid import pid_rum
+class control(JY61):
     def __init__(self,portx,bps) -> None:
         self.portx = portx
         self.bps = bps
         self.packet = bytearray()
         self.z_data=0
+        JY61.__init__(self)
     def coding(self,X=0,Y=0,Z=0):
         packet = bytearray() #創一個空的陣列 類型是bytearray
         # X=0
@@ -50,7 +52,7 @@ class control():
         packet.append(Z1)  
         packet.append(XOR_END)  
         packet.append(0x7D)  
-        print(packet)
+        # print(packet)
         self.packet=packet
         return packet
     def play(self,X=0,Y=0,Z=0,s=1):    
@@ -96,20 +98,39 @@ class control():
                     # print(content) 
                     self.online() 
                     # time.sleep(1)  
-    def rum(self):
-        self.ser = serial.Serial(self.portx, self.bps) 
-        t = threading.Thread(target = self.res)
-        t.start()
-        # self.play(X=3000,s=3)
-        # self.play(X=-1000,s=3)
-        # self.play(Y=1000,s=3)
-        # self.play(Y=-1000,s=3)
+    def res2(self):
         while 1:
+            datahex = self.ser2.read(33)
+            self.DueData(datahex)
+            Angle=self.Angle[2]
+            if(self.Angle[2]<0):
 
-            if(self.z_data<90):
-                self.play(Z=100,s=1)
-            elif(self.z_data>90):
-                self.play(Z=-100,s=1)
+                Angle=abs(Angle)+180
+            self.pid.update(Angle)
+            print(self.pid.output,"////",Angle)
+            self.online() 
+                          
+    def rum(self):
+        self.ser = serial.Serial(self.portx, self.bps)
+        self.ser2=serial.Serial("COM4", 9600)
+        t = threading.Thread(target = self.res2)
+        t.start()
+        self.pid=pid_rum(3,10,1)
+        self.SetPoint = 253
+        
+        # self.play(X=500,s=3)
+        # self.play(X=-500,s=3)
+        # self.play(Y=500,s=3)
+        # self.play(Y=-500,s=3)
+        # while 1:
+        while 1:
+            self.play(Z=int(self.pid.output),X=-100,s=0.2)
+        #     if(self.Angle[2]>100):
+        #         self.play(Z=-100,s=0.5)
+        #         print("\t\t\t\t\t\t\t\t\t\t\t\t\t\t-100")
+        #     elif(self.Angle[2]<100):
+        #         self.play(Z=100,s=0.5)
+        #         print("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t100")
                    
         # self.play(Z=-1000,s=3)
              
