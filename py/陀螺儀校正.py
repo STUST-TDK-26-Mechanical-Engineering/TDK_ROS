@@ -14,10 +14,7 @@ if __name__=='__main__':
     while(1):
         datahex = ser.read(33)
         Jy61.DueData(datahex) 
-        z=Jy61.Angle[2] 
-        if(z<0):
-            z= 360-abs(Jy61.Angle[2])
-            
+        z=Jy61.Angle[2]+pid.SetPoint
             # map()
         pid.update(z)    
         print(pid.output,"\t\t",z)  
