@@ -56,9 +56,9 @@ class control(JY61):
         self.packet=packet
         return packet
     def play(self,X=0,Y=0,Z=0,s=1):    
-        packet=self.coding(X,Y,Z)
+        self.packet=self.coding(X,Y,Z)
         time.sleep(s)
-        packet=self.coding(0,0,0)
+        self.packet=self.coding(0,0,0)
     def online(self):
         self.ser.write(self.packet)     
     def bytes2Hex(self,argv):        #十六进制显示 方法1
@@ -84,15 +84,15 @@ class control(JY61):
                 num = self.ser.inWaiting()   #查询串口接收字节数据，非阻塞
                 if num:
                     line = self.ser.read(num)  
-                    data=hex(line[18])[2:]+hex(line[19])[2:] 
-                    data=int(data,16)
-                    if(data>32767):
-                        data=data-(65536)
+                    # data=hex(line[18])[2:]+hex(line[19])[2:] 
+                    # data=int(data,16)
+                    # if(data>32767):
+                    #     data=data-(65536)
                        
-                    data=data*(10**-3)
-                    if(abs(data)>0.01):
-                        self.z_data=self.z_data+data   
-                    print(self.z_data)
+                    # data=data*(10**-3)
+                    # if(abs(data)>0.01):
+                    #     self.z_data=self.z_data+data   
+                    # print(self.z_data)
                     # content = self.bytes2Hex(line)
                     # f.write(content)
                     # print(content) 
@@ -108,23 +108,24 @@ class control(JY61):
                 Angle=abs(Angle)+180
             self.pid.update(Angle)
             print(self.pid.output,"////",Angle)
-            self.online() 
-                          
+            self.online()                          
     def rum(self):
         self.ser = serial.Serial(self.portx, self.bps)
-        self.ser2=serial.Serial("COM4", 9600)
-        t = threading.Thread(target = self.res2)
+        # self.ser2=serial.Serial("COM4", 9600)
+        t = threading.Thread(target = self.res)
         t.start()
-        self.pid=pid_rum(3,10,1)
-        self.SetPoint = 253
+        # self.pid=pid_rum(3,10,1)
+        # self.SetPoint = 253
         
-        # self.play(X=500,s=3)
+        self.play(X=500,Z=500,s=1)
+        time.sleep(5)
+        self.play(X=-500,Z=-500,s=1)
         # self.play(X=-500,s=3)
         # self.play(Y=500,s=3)
         # self.play(Y=-500,s=3)
         # while 1:
-        while 1:
-            self.play(Z=int(self.pid.output),X=-100,s=0.2)
+        # while 1:
+            # self.play(Z=int(self.pid.output),X=-100,s=0.2)
         #     if(self.Angle[2]>100):
         #         self.play(Z=-100,s=0.5)
         #         print("\t\t\t\t\t\t\t\t\t\t\t\t\t\t-100")
