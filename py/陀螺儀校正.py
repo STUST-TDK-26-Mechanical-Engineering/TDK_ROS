@@ -15,6 +15,7 @@ if __name__=='__main__':
         datahex = ser.read(33)
         Jy61.DueData(datahex) 
         z=Jy61.Angle[2]+pid.SetPoint
+        # 分叉測試#
             # map()
 
        
