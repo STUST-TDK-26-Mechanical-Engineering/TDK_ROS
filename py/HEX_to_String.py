@@ -38,7 +38,7 @@ class control(JY61):
         if(Z2<0):
             Z2=Z2+256  
 
-        print(X2,X1,Y2,Y1,Z2,Z1)  
+        # print(X2,X1,Y2,Y1,Z2,Z1)  
         XOR_END=0x7B^0xAA^0xAA^X2^X1^Y2^Y1^Z2^Z1
         # XOR_END=0x7B^0xFF^0xFF
         packet.append(0x7B)  
@@ -103,35 +103,38 @@ class control(JY61):
             datahex = self.ser2.read(33)
             self.DueData(datahex)
             Angle=self.Angle[2]
-            if(self.Angle[2]<0):
+            z= self.Angle[2]
+            if(z<0):
+                z= 360-abs(self.Angle[2])
+            self.pid.update(z)
 
-                Angle=abs(Angle)+180
-            self.pid.update(Angle)
-            print(self.pid.output,"////",Angle)
+            print(round(self.pid.output),"////",z,"///",self.Angle[2])
             self.online()                          
     def rum(self):
         self.ser = serial.Serial(self.portx, self.bps)
-        # self.ser2=serial.Serial("COM4", 9600)
-        t = threading.Thread(target = self.res)
+        self.ser2=serial.Serial("COM10", 9600)
+        t = threading.Thread(target = self.res2)
         t.start()
-        # self.pid=pid_rum(3,10,1)
-        # self.SetPoint = 253
+        self.pid=pid_rum(10,0,0)
+        self.pid.SetPoint = 270
         
-        self.play(X=500,Z=500,s=1)
-        time.sleep(5)
-        self.play(X=-500,Z=-500,s=1)
+        # self.play(X=500,Z=500,s=1)
+        # time.sleep(5)
+        # self.play(X=-500,Z=-500,s=1)
         # self.play(X=-500,s=3)
         # self.play(Y=500,s=3)
         # self.play(Y=-500,s=3)
         # while 1:
-        # while 1:
-            # self.play(Z=int(self.pid.output),X=-100,s=0.2)
-        #     if(self.Angle[2]>100):
-        #         self.play(Z=-100,s=0.5)
-        #         print("\t\t\t\t\t\t\t\t\t\t\t\t\t\t-100")
-        #     elif(self.Angle[2]<100):
-        #         self.play(Z=100,s=0.5)
-        #         print("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t100")
+        while 1:
+
+            output=round(self.pid.output)
+            self.play(Z=int(output),X=500,s=0.2)
+            # if(self.Angle[2]>100):
+            #     self.play(Z=-100,s=0.5)
+            #     print("\t\t\t\t\t\t\t\t\t\t\t\t\t\t-100")
+            # elif(self.Angle[2]<100):
+            #     self.play(Z=100,s=0.5)
+            #     print("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t100")
                    
         # self.play(Z=-1000,s=3)
              

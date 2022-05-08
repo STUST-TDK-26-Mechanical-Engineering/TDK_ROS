@@ -10,16 +10,20 @@ if __name__=='__main__':
     print(ser.is_open)
     Jy61=JY61()
     pid=pid_rum(P=1)
-    pid.SetPoint =170
+    pid.SetPoint =50
     while(1):
         datahex = ser.read(33)
-        Jy61.DueData(datahex) 
-        z=Jy61.Angle[2]+pid.SetPoint
-        # 分叉測試#
-            # map()
+        Jy61.DueData(datahex)
+        z= Jy61.Angle[2]
+        if(z<0):
+            z= 360-abs(Jy61.Angle[2])
 
-       
+        # z=Jy61.Angle[2]-pid.SetPoint
+        # 分叉測試#
+           # map()
+
+
         pid.update(z)    
         output=round(pid.output)    
-        print(pid.output,"\t\t",z)  
+        print(output,"\t\t",Jy61.Angle[2],"/////",z)  
             
