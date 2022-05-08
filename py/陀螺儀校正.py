@@ -2,7 +2,7 @@ from JY61 import JY61
 from pid import pid_rum
 import serial
 import time
-
+import math
 if __name__=='__main__': 
     port="COM10"
     baud=9600
@@ -10,12 +10,15 @@ if __name__=='__main__':
     print(ser.is_open)
     Jy61=JY61()
     pid=pid_rum(P=1)
-    pid.SetPoint = 100
+    pid.SetPoint =170
     while(1):
         datahex = ser.read(33)
         Jy61.DueData(datahex) 
         z=Jy61.Angle[2]+pid.SetPoint
             # map()
+
+       
         pid.update(z)    
+        output=round(pid.output)    
         print(pid.output,"\t\t",z)  
             
